@@ -2,7 +2,9 @@ package com.darylteo.rx.promises.test;
 
 import com.darylteo.rx.promises.java.Promise;
 import com.darylteo.rx.promises.java.functions.*;
+
 import org.junit.Test;
+
 import rx.exceptions.OnErrorThrowable;
 
 import java.util.concurrent.CountDownLatch;
@@ -331,8 +333,8 @@ public class PromiseTestsJava {
     assertFalse("Promise did not fail properly", flag.get());
   }
 
-  @Test
-  public void testError() throws Exception {
+  @Test (expected=AssertionError.class)
+  public void testError() throws Throwable {
     final Promise<String> p = new Promise();
     final CountDownLatch latch = new CountDownLatch(1);
     final Result<Exception> result = new Result<Exception>();
@@ -340,7 +342,7 @@ public class PromiseTestsJava {
     p.then(new PromiseAction<String>() {
       @Override
       public void call(String s) {
-        throw new AssertionError("Hello World");
+        assertEquals(s, "This shouldn't match");
       }
     }).fail(new PromiseAction<Exception>() {
       @Override
@@ -354,7 +356,7 @@ public class PromiseTestsJava {
     latch.await(1, TimeUnit.SECONDS);
     assertNotNull(result.value);
     assertEquals(result.value.getClass(), OnErrorThrowable.class);
-    assertEquals(result.value.getCause().getClass(), AssertionError.class);
+    throw result.value.getCause();
   }
 
   /* Fin with basic */
